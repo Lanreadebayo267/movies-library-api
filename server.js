@@ -149,9 +149,13 @@ app.get("/", (req, res) => {
 });
 
 // Start server AFTER DB connection
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📄 Swagger UI: http://localhost:${PORT}/api-docs`);
-  });
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ DB connection failed:", err.message);
+    process.exit(1);
 });
