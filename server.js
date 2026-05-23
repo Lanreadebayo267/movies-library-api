@@ -28,7 +28,7 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: `http://localhost:${PORT}`
+      url: `https://movies-library-api-1.onrender.com`
     }
   ],
   paths: {
