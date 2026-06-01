@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const ensureAuth = require("../middleware/authenticate");
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST movie
-router.post("/", async (req, res) => {
+router.post("/", ensureAuth, async (req, res) => {
   try {
     const movie = new Movie(req.body);
     const savedMovie = await movie.save();
@@ -95,7 +96,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // PUT movie
-router.put("/:id", async (req, res) => {
+router.put("/:id", ensureAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -126,7 +127,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE movie
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", ensureAuth, async (req, res) => {
   try {
     const { id } = req.params;
 

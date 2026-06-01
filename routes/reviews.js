@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const ensureAuth = require("../middleware/authenticate");
 
 const router = express.Router();
 
@@ -46,7 +47,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST review
-router.post("/", async (req, res) => {
+router.post("/", ensureAuth, async (req, res) => {
   try {
     const review = new Review(req.body);
     const savedReview = await review.save();
@@ -88,7 +89,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // PUT review
-router.put("/:id", async (req, res) => {
+router.put("/:id", ensureAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -123,7 +124,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE review
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", ensureAuth, async (req, res) => {
   try {
     const { id } = req.params;
 

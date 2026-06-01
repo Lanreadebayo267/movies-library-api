@@ -1,365 +1,127 @@
 const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
 const cors = require("cors");
 const swaggerUI = require("swagger-ui-express");
+const session = require("express-session");
 
+const passport = require("./auth/passport");
 const { connectDB } = require("./db/connect");
+
 const movieRoutes = require("./routes/movies");
 const reviewRoutes = require("./routes/reviews");
 
-dotenv.config();
+const swaggerDocument = require("./swagger.json");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// ======================
 // Middleware
+// ======================
 app.use(cors({
   origin: [
     "http://localhost:8080",
     "https://movies-library-api-1.onrender.com"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  credentials: true
 }));
 
 app.use(express.json());
 
-// Routes
-app.use("/movies", movieRoutes);
-app.use("/reviews", reviewRoutes);
+// Session
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
 
-// Swagger OpenAPI 3
-const swaggerDocument = {
-  openapi: "3.0.0",
-  info: {
-    title: "Movie Library API",
-    version: "1.0.0",
-    description: "CRUD API for managing movies and reviews"
-  },
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
-  servers: [
-    {
-      url: "https://movies-library-api-1.onrender.com",
-      description: "Production Server"
-    },
-    {
-      url: "http://localhost:8080",
-      description: "Local Server"
-    }
-  ],
-
-  paths: {
-    "/movies": {
-      get: {
-        summary: "Get all movies",
-        responses: {
-          200: {
-            description: "Success"
-          }
-        }
-      },
-
-      post: {
-        summary: "Create a movie",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  director: { type: "string" },
-                  genre: { type: "string" },
-                  releaseYear: { type: "number" },
-                  rating: { type: "number" },
-                  duration: { type: "number" },
-                  language: { type: "string" },
-                  streamingPlatform: {
-                    type: "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-
-        responses: {
-          201: {
-            description: "Movie created"
-          },
-          400: {
-            description: "Bad Request"
-          }
-        }
-      }
-    },
-
-    "/movies/{id}": {
-      get: {
-        summary: "Get movie by ID",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string"
-            }
-          }
-        ],
-
-        responses: {
-          200: {
-            description: "Success"
-          },
-          404: {
-            description: "Movie not found"
-          }
-        }
-      },
-
-      put: {
-        summary: "Update movie",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string"
-            }
-          }
-        ],
-
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  title: { type: "string" },
-                  director: { type: "string" },
-                  genre: { type: "string" },
-                  releaseYear: { type: "number" },
-                  rating: { type: "number" },
-                  duration: { type: "number" },
-                  language: { type: "string" },
-                  streamingPlatform: {
-                    type: "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-
-        responses: {
-          200: {
-            description: "Movie updated"
-          },
-          404: {
-            description: "Movie not found"
-          }
-        }
-      },
-
-      delete: {
-        summary: "Delete movie",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string"
-            }
-          }
-        ],
-
-        responses: {
-          200: {
-            description: "Movie deleted"
-          },
-          404: {
-            description: "Movie not found"
-          }
-        }
-      }
-    },
-
-    "/reviews": {
-      get: {
-        summary: "Get all reviews",
-        responses: {
-          200: {
-            description: "Success"
-          }
-        }
-      },
-
-      post: {
-        summary: "Create a review",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  movieTitle: {
-                    type: "string"
-                  },
-                  reviewer: {
-                    type: "string"
-                  },
-                  comment: {
-                    type: "string"
-                  },
-                  rating: {
-                    type: "number"
-                  }
-                }
-              }
-            }
-          }
-        },
-
-        responses: {
-          201: {
-            description: "Review created"
-          },
-          400: {
-            description: "Bad Request"
-          }
-        }
-      }
-    },
-
-    "/reviews/{id}": {
-      get: {
-        summary: "Get review by ID",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string"
-            }
-          }
-        ],
-
-        responses: {
-          200: {
-            description: "Success"
-          },
-          404: {
-            description: "Review not found"
-          }
-        }
-      },
-
-      put: {
-        summary: "Update review",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string"
-            }
-          }
-        ],
-
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  movieTitle: {
-                    type: "string"
-                  },
-                  reviewer: {
-                    type: "string"
-                  },
-                  comment: {
-                    type: "string"
-                  },
-                  rating: {
-                    type: "number"
-                  }
-                }
-              }
-            }
-          }
-        },
-
-        responses: {
-          200: {
-            description: "Review updated"
-          },
-          404: {
-            description: "Review not found"
-          }
-        }
-      },
-
-      delete: {
-        summary: "Delete review",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string"
-            }
-          }
-        ],
-
-        responses: {
-          200: {
-            description: "Review deleted"
-          },
-          404: {
-            description: "Review not found"
-          }
-        }
-      }
-    }
-  }
-};
-
+// ======================
+// Swagger Docs
+// ======================
 app.use(
   "/api-docs",
   swaggerUI.serve,
   swaggerUI.setup(swaggerDocument)
 );
 
-// Health check route
+// ======================
+// API Routes
+// ======================
+app.use("/movies", movieRoutes);
+app.use("/reviews", reviewRoutes);
+
+// ======================
+// Home Route
+// ======================
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "Movie Library API is running"
   });
 });
 
-// Start server after DB connection
+// ======================
+// OAuth Routes
+// ======================
+// Check login status
+app.get("/auth/status", (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.status(200).json({
+      authenticated: true,
+      user: req.user
+    });
+  }
+
+  res.status(401).json({
+    authenticated: false
+  });
+});
+
+// Login with GitHub
+app.get(
+  "/auth/github",
+  passport.authenticate("github", {
+    scope: ["user:email"]
+  })
+);
+
+// GitHub callback
+app.get(
+  "/github/callback",
+  passport.authenticate("github", {
+    failureRedirect: "/",
+    session: true
+  }),
+  (req, res) => {
+    res.redirect("/auth/status");
+  }
+);
+
+// Logout
+app.get("/logout", (req, res) => {
+  req.logout(() => {
+    res.redirect("/");
+  });
+});
+
+// ======================
+// Start Server
+// ======================
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
       console.log(
-        `🚀 Server running on port ${PORT}`
+        `Server running on port ${PORT}`
       );
     });
   })
   .catch((err) => {
     console.error(
-      "❌ DB connection failed:",
+      "Database connection failed:",
       err.message
     );
     process.exit(1);
