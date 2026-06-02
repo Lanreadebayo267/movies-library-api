@@ -6,7 +6,7 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "http://localhost:8080/github/callback"
+      callbackURL: "https://movies-library-api-1.onrender.com/github/callback"
     },
 
     (accessToken, refreshToken, profile, done) => {
