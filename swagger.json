@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "description": "CRUD API for managing movies and reviews with OAuth authentication"
   },
+
   "servers": [
     {
       "url": "http://localhost:8080",
@@ -15,6 +16,7 @@
       "description": "Production Server"
     }
   ],
+
   "paths": {
     "/movies": {
       "get": {
@@ -25,6 +27,7 @@
           }
         }
       },
+
       "post": {
         "summary": "Create a movie (Protected)",
         "security": [
@@ -36,35 +39,6 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "director": {
-                    "type": "string"
-                  },
-                  "genre": {
-                    "type": "string"
-                  },
-                  "releaseYear": {
-                    "type": "number"
-                  },
-                  "rating": {
-                    "type": "number"
-                  },
-                  "duration": {
-                    "type": "number"
-                  },
-                  "language": {
-                    "type": "string"
-                  },
-                  "streamingPlatform": {
-                    "type": "string"
-                  }
-                }
-              },
               "example": {
                 "title": "Interstellar",
                 "director": "Christopher Nolan",
@@ -105,6 +79,9 @@
         "responses": {
           "200": {
             "description": "Movie found"
+          },
+          "404": {
+            "description": "Movie not found"
           }
         }
       },
@@ -163,6 +140,130 @@
         "responses": {
           "200": {
             "description": "Movie deleted"
+          }
+        }
+      }
+    },
+
+    "/reviews": {
+      "get": {
+        "summary": "Get all reviews",
+        "responses": {
+          "200": {
+            "description": "Reviews retrieved successfully"
+          }
+        }
+      },
+
+      "post": {
+        "summary": "Create a review (Protected)",
+        "security": [
+          {
+            "githubAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "movieTitle": "Interstellar",
+                "reviewer": "Ruzzi",
+                "comment": "Amazing movie!",
+                "rating": 9
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+
+    "/reviews/{id}": {
+      "get": {
+        "summary": "Get review by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review found"
+          },
+          "404": {
+            "description": "Review not found"
+          }
+        }
+      },
+
+      "put": {
+        "summary": "Update review (Protected)",
+        "security": [
+          {
+            "githubAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "comment": "Updated review comment",
+                "rating": 10
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review updated"
+          }
+        }
+      },
+
+      "delete": {
+        "summary": "Delete review (Protected)",
+        "security": [
+          {
+            "githubAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review deleted"
           }
         }
       }

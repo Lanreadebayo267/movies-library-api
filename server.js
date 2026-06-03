@@ -24,7 +24,12 @@ app.use(cors({
     "http://localhost:8080",
     "https://movies-library-api-1.onrender.com"
   ],
-  credentials: true
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true, // IMPORTANT
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization"
+  ]
 }));
 
 app.use(express.json());
@@ -33,7 +38,11 @@ app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // true only on Render/HTTPS
+    httpOnly: true
+  }
 }));
 
 // Passport
@@ -70,13 +79,13 @@ app.get("/", (req, res) => {
 // Check login status
 app.get("/auth/status", (req, res) => {
   if (req.isAuthenticated()) {
-    return res.status(200).json({
+    return res.json({
       authenticated: true,
       user: req.user
     });
   }
 
-  res.status(401).json({
+  res.json({
     authenticated: false
   });
 });
